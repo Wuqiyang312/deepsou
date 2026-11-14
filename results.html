@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="深搜 DeepSou 搜索结果 —— 接入 DeepSeek 网页搜索 API,结果按权威值排序。">
+<title>搜索结果 - 深搜 DeepSou</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='14' cy='14' r='9' fill='none' stroke='%231b39c8' stroke-width='3'/%3E%3Cline x1='21' y1='21' x2='29' y2='29' stroke='%231b39c8' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="index.html">深搜 <span class="en">DeepSou</span></a>
+  <ul class="links">
+    <li><a href="index.html">首页</a></li><li class="sep">|</li>
+    <li><a href="dir.html">分类目录</a></li><li class="sep">|</li>
+    <li><a href="guestbook.html">留言本</a></li><li class="sep">|</li>
+    <li><a href="about.html">关于本站</a></li><li class="sep">|</li>
+    <li><a href="settings.html">API 设置</a></li><li class="sep">|</li>
+    <li><a href="#" class="js-theme">夜视模式</a></li>
+  </ul>
+</nav>
+
+<main>
+<div class="wrap">
+  <!-- 顶部:小 logo + 搜索框(百度式) -->
+  <div class="result-top">
+    <a class="mini" href="index.html" title="返回首页">深搜</a>
+    <form id="topForm" autocomplete="off">
+      <input type="text" id="topInput" aria-label="搜索关键词">
+      <button type="submit" class="btn btn-primary">深搜一下</button>
+      <button type="button" class="btn" id="topLucky">手气不错</button>
+    </form>
+  </div>
+
+  <div class="stats mono" id="statsLine"></div>
+  <div class="mode-banner hidden" id="modeBanner">
+    <span>※ 离线模式:尚未配置 DeepSeek API Key,以下为本地演示数据。</span>
+    <a href="settings.html">立即配置</a>
+  </div>
+  <div class="editor-note hidden" id="editorNote"></div>
+  <div class="cur-tab hidden" id="curTab"></div>
+  <div class="searching hidden" id="searching">
+    <span class="spin">◐</span>
+    <div class="msg" id="searchMsg">正在连接检索服务器…</div>
+  </div>
+  <div class="error-box hidden" id="errorBox"></div>
+  <ol class="results" id="resultList"></ol>
+  <div class="pager" id="pager"></div>
+</div>
+</main>
+
+<footer>
+  <div class="mono">©2026 DeepSou 深搜 · <a href="about.html">关于本站</a> · <a href="guestbook.html">留言本</a></div>
+  <div class="mono">检索由 DeepSeek 网页搜索提供 · 无追踪 · 您是第 <span class="counter" id="counter"></span> 位访客</div>
+  <div class="mono" id="ftDate"></div>
+</footer>
+
+<div class="modal-mask hidden" id="modalMask" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="m-head"><span id="mTitle">提示</span><button class="m-close" id="mClose" aria-label="关闭">×</button></div>
+    <div class="m-body" id="mBody"></div>
+    <div class="m-foot" id="mFoot"></div>
+  </div>
+</div>
+
+<script src="js/common.js"></script>
+<script src="js/results.js"></script>
+</body>
+</html>

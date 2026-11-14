@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="深搜 DeepSou API 设置 —— 配置 DeepSeek 网页搜索 API Key,仅保存在浏览器本地。">
+<title>API 设置 - 深搜 DeepSou</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='14' cy='14' r='9' fill='none' stroke='%231b39c8' stroke-width='3'/%3E%3Cline x1='21' y1='21' x2='29' y2='29' stroke='%231b39c8' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="index.html">深搜 <span class="en">DeepSou</span></a>
+  <ul class="links">
+    <li><a href="index.html">首页</a></li><li class="sep">|</li>
+    <li><a href="dir.html">分类目录</a></li><li class="sep">|</li>
+    <li><a href="guestbook.html">留言本</a></li><li class="sep">|</li>
+    <li><a href="about.html">关于本站</a></li><li class="sep">|</li>
+    <li><a href="settings.html">API 设置</a></li><li class="sep">|</li>
+    <li><a href="#" class="js-theme">夜视模式</a></li>
+  </ul>
+</nav>
+
+<div class="marquee"><span>★ API 设置 —— Key 只存在你自己的浏览器里,我们不会看到 ★</span></div>
+
+<main>
+<div class="page-title">
+  <h2>▍API 设置</h2>
+  <div class="sub">DeepSeek 网页搜索 API · Key 仅保存于本机 localStorage</div>
+</div>
+
+<div class="page-body">
+  <div class="panel" style="max-width:560px">
+    <p style="font-size:13px">深搜通过 <b>DeepSeek 网页搜索 API</b>(POST /v1/tools/search)获取真实检索结果,没有 AI 总结、没有对话补全,搜出来的就是真实网页。Key 仅保存在您浏览器的 localStorage 中;未配置时使用本地演示数据。</p>
+
+    <div class="field"><label>API Key(sk- 开头)</label><input id="apiKey" type="password" placeholder="sk-xxxxxxxxxxxxxxxx"></div>
+    <div class="field"><label>接口地址</label><input id="apiBase" value="https://api.deepseek.com"></div>
+    <div class="status-line" id="apiStatus"></div>
+
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button type="button" class="btn btn-primary" id="btnSave">保存</button>
+      <button type="button" class="btn" id="btnTest">测试连接</button>
+      <button type="button" class="btn" id="btnClear">清除 Key</button>
+      <a href="index.html" class="btn" style="display:inline-flex;align-items:center;text-decoration:none">返回首页</a>
+    </div>
+  </div>
+
+  <div class="panel" style="max-width:560px;margin-top:16px">
+    <h3>▍说明</h3>
+    <p>· 接口文档:<a href="https://api-docs.deepseek.com/zh-cn/api/search" target="_blank" rel="noopener">DeepSeek 搜索 API</a>;</p>
+    <p>· 测试连接会用「DeepSeek」做一次真实搜索验证 Key 是否可用;</p>
+    <p>· 清除 Key 后回到离线演示模式,结果带「本地」标记。</p>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="mono">©2026 DeepSou 深搜 · <a href="index.html">返回首页</a> · <a href="about.html">关于本站</a></div>
+  <div class="mono">最佳分辨率 1024×768 · 您是第 <span class="counter" id="counter"></span> 位访客</div>
+  <div class="mono" id="ftDate"></div>
+</footer>
+
+<script src="js/common.js"></script>
+<script src="js/settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="关于深搜 DeepSou —— 一个致敬互联网早期时代的复古搜索引擎。">
+<title>关于本站 - 深搜 DeepSou</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='14' cy='14' r='9' fill='none' stroke='%231b39c8' stroke-width='3'/%3E%3Cline x1='21' y1='21' x2='29' y2='29' stroke='%231b39c8' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="index.html">深搜 <span class="en">DeepSou</span></a>
+  <ul class="links">
+    <li><a href="index.html">首页</a></li><li class="sep">|</li>
+    <li><a href="dir.html">分类目录</a></li><li class="sep">|</li>
+    <li><a href="guestbook.html">留言本</a></li><li class="sep">|</li>
+    <li><a href="about.html">关于本站</a></li><li class="sep">|</li>
+    <li><a href="settings.html">API 设置</a></li><li class="sep">|</li>
+    <li><a href="#" class="js-theme">夜视模式</a></li>
+  </ul>
+</nav>
+
+<div class="marquee"><span>★ 关于深搜 —— 一次搜索约需数秒,其中大半是怀旧仪式感 ★</span></div>
+
+<main>
+<div class="page-title">
+  <h2>▍关于本站</h2>
+  <div class="sub">About DeepSou · est. 1998 · 复活于 2026</div>
+</div>
+
+<div class="page-body">
+  <div class="panel">
+    <p><b>深搜 DeepSou</b> 是一个致敬互联网早期时代的检索引擎。</p>
+    <p style="margin-top:8px">没有算法推荐、没有无尽的信息流。你输入关键词,检索服务翻遍互联网,把结果按<b>权威值</b>排好交给你——像二十年前那样,一条一条,点过去。</p>
+    <p style="margin-top:8px">本站页面布局参考 2009 年前后的古典搜索引擎:蓝色大标题、搜索框上方的栏目 tab、方方正正的按钮,以及页脚的访客计数器。</p>
+    <p class="mono" style="margin-top:8px;font-size:12px">—— 站长 敬上,2026 年秋,于赛博阁</p>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h3>▍检索是怎么工作的</h3>
+    <p>1. 浏览器直连 <b>DeepSeek 网页搜索 API</b>(POST /v1/tools/search),不经过任何中间服务器;</p>
+    <p>2. 接口为每条结果返回权威性(authority,0–4 分),本站将其折算为 0–10 的权威值,降序排列;</p>
+    <p>3. authority 未知(-1)时,用 rerank_score(0–3)折算兜底;</p>
+    <p>4. 未配置 API Key 时,自动切换为本地演示数据(带「本地」标记)。</p>
+    <p class="mono-list">得分 = authority >= 0 ? authority / 4 * 10 : rerank_score / 3 * 10</p>
+  </div>
+
+  <div class="panel" id="privacy" style="margin-top:16px">
+    <h3>▍隐私说明</h3>
+    <p>· 无追踪、无统计脚本、无服务端日志;</p>
+    <p>· API Key 仅保存在你浏览器的 localStorage 中,除直连 DeepSeek 官方接口外不会离开本机;</p>
+    <p>· 留言本、访客计数、夜视模式偏好全部只存在你自己的浏览器里。</p>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h3>▍技术说明</h3>
+    <p>纯静态多文件页面,无构建、无框架、无依赖,任意静态托管即可运行。</p>
+    <p class="mono-list">
+      index.html&nbsp;&nbsp;&nbsp;&nbsp;首页(2009 百度式布局)<br>
+      results.html&nbsp;&nbsp;搜索结果页<br>
+      dir.html&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;分类目录页<br>
+      guestbook.html 留言本页<br>
+      settings.html&nbsp;API 设置页<br>
+      about.html&nbsp;&nbsp;&nbsp;&nbsp;本页<br>
+      css/style.css&nbsp;全站样式(经典/CRT 双主题)<br>
+      js/*.js&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;按页面拆分的脚本
+    </p>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="mono">©2026 DeepSou 深搜 · <a href="index.html">返回首页</a> · <a href="guestbook.html">给站长留言</a></div>
+  <div class="mono">最佳分辨率 1024×768 · 兼容 Netscape Navigator 4.0 · 您是第 <span class="counter" id="counter"></span> 位访客</div>
+  <div class="mono" id="ftDate"></div>
+</footer>
+
+<script src="js/common.js"></script>
+</body>
+</html>

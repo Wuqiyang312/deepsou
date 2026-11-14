@@ -3,381 +3,81 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="深搜 DeepSou —— 复古检索引擎界面,接入 DeepSeek 网页搜索 API,结果按权威值排序,带您回到互联网早期时代。">
+<meta name="description" content="深搜 DeepSou —— 复古检索引擎,接入 DeepSeek 网页搜索 API,结果按权威值排序,带您回到互联网早期时代。">
 <title>深搜 DeepSou - 回到 1998</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='14' cy='14' r='9' fill='none' stroke='%23004de5' stroke-width='3'/%3E%3Cline x1='21' y1='21' x2='29' y2='29' stroke='%23004de5' stroke-width='4'/%3E%3C/svg%3E">
-<style>
-/* ============================================================
-   深搜 DeepSou · 复古检索引擎界面
-   检索后端: DeepSeek 网页搜索 API (POST /v1/tools/search)
-   主题一「经典模式」: 白底 / 蓝链 Times New Roman + Courier 等宽
-   主题二「夜视模式」: CRT 磷光绿 / 扫描线 / 琥珀色强调
-   ============================================================ */
-:root{
-  --link:#004de5;            /* 经典网页蓝 */
-  --link-visited:#551a8b;    /* 访问过的紫 */
-  --url-green:#008000;       /* 结果地址绿 */
-  --page-bg:#ffffff;
-  --text:#0a0a0a;
-  --text-2:#333333;
-  --nav-bg:#e6e6e6;
-  --nav-border:#999999;
-  --btn-bg:#f7f7f7;
-  --btn-border:#c0c0c0;
-  --box-bg:#eaeaea;
-  --box-border:#676767;
-  --hl:#fff895;              /* 版主黄标 */
-  --pr-bar:#00c853;          /* 权威值绿条 */
-  --accent:#004de5;
-  --serif:'Times New Roman','Songti SC','SimSun','Noto Serif CJK SC',serif;
-  --mono:'Courier New',Courier,'SimSun',monospace;
-}
-body.crt{
-  --link:#ffaa00;
-  --link-visited:#00ff40;
-  --url-green:#00ff40;
-  --page-bg:#0a0a0c;
-  --text:#e0ddd5;
-  --text-2:#c8c4ba;
-  --nav-bg:#111114;
-  --nav-border:#1a1a1e;
-  --btn-bg:#111114;
-  --btn-border:#8a877e;
-  --box-bg:#111114;
-  --box-border:#8a877e;
-  --hl:#00ff40;
-  --pr-bar:#00ff40;
-  --accent:#ffaa00;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  font:16px/1.7 var(--serif);
-  color:var(--text);
-  background:var(--page-bg);
-  min-height:100dvh;
-  -webkit-font-smoothing:antialiased;
-}
-a{color:var(--link);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px}
-a:visited{color:var(--link-visited)}
-a:hover{color:#ff0000}
-body.crt a:hover{color:#ff0040;text-shadow:-2px 0 #0040ff,2px 0 #ff0040}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-button{font-family:var(--serif);cursor:pointer}
-input,select,textarea{font-family:var(--serif);font-size:16px}
-.mono{font-family:var(--mono)}
-.hidden{display:none !important}
-
-/* ---------- CRT 扫描线 / 夜视氛围 ---------- */
-body.crt{position:relative}
-body.crt::before{
-  content:"";position:fixed;inset:0;pointer-events:none;z-index:60;
-  background:repeating-linear-gradient(0deg,rgba(255,255,255,.045) 0 1px,transparent 1px 3px);
-}
-body.crt::after{
-  content:"";position:fixed;inset:0;pointer-events:none;z-index:61;
-  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%);
-}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-
-/* ---------- 顶部导航条(老式门户灰条) ---------- */
-.nav{
-  background:var(--nav-bg);border-bottom:1px solid var(--nav-border);
-  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
-  gap:4px 16px;padding:6px 16px;font-size:14px;
-}
-.nav .brand{display:flex;align-items:baseline;gap:8px;font-size:20px;font-weight:bold;color:var(--link);text-decoration:none;cursor:pointer}
-.nav .brand .en{font-size:12px;color:var(--text-2);font-family:var(--mono)}
-.nav .links{display:flex;flex-wrap:wrap;gap:2px 10px;list-style:none}
-.nav .links a{font-size:13px}
-.nav .sep{color:var(--text-2)}
-
-/* ---------- 跑马灯公告 ---------- */
-.marquee{
-  overflow:hidden;white-space:nowrap;border-bottom:1px dashed var(--box-border);
-  font-size:13px;color:var(--text-2);background:var(--box-bg);padding:3px 0;
-}
-.marquee span{display:inline-block;padding-left:100%;animation:mq 30s linear infinite}
-@keyframes mq{to{transform:translateX(-100%)}}
-
-/* ---------- 主体布局 ---------- */
-.wrap{max-width:860px;margin:0 auto;padding:0 16px 40px}
-.view-home .wrap{max-width:700px}
-.col{display:flex;flex-direction:column;align-items:center}
-
-/* ---------- 首页大 Logo ---------- */
-.biglogo{margin:52px 0 8px;text-align:center;user-select:none}
-.biglogo h1{
-  font-size:64px;line-height:1.1;color:var(--link);letter-spacing:6px;
-  text-decoration:none;font-weight:bold;
-}
-body.crt .biglogo h1{text-shadow:-3px 0 #ff0040,3px 0 #0040ff}
-.biglogo .sub{font-family:var(--mono);font-size:13px;color:var(--text-2);margin-top:6px;letter-spacing:1px}
-
-/* ---------- 搜索表单 ---------- */
-.searchform{width:100%;max-width:560px;display:flex;gap:8px;flex-wrap:wrap;margin-top:26px}
-.searchform input{
-  flex:1 1 240px;min-width:0;height:42px;padding:0 12px;
-  border:1px solid var(--box-border);background:var(--page-bg);color:var(--text);
-}
-.searchform input:focus{border-color:var(--link)}
-.btn{
-  height:42px;padding:0 22px;font-size:16px;border-radius:4px;
-  background:var(--btn-bg);border:1px solid var(--btn-border);color:var(--text);
-}
-.btn:hover{background:#e8f0ff}
-.btn:active{border-style:inset}
-body.crt .btn:hover{background:#1a1a1e;color:#ffaa00}
-.btn-primary{
-  background:var(--accent);border:1px solid var(--accent);color:#fff;font-weight:bold;
-}
-.btn-primary:hover{background:#0036a8;color:#fff}
-body.crt .btn-primary{background:#00ff40;border-color:#00ff40;color:#0a0a0c}
-body.crt .btn-primary:hover{background:#00cc33;color:#0a0a0c}
-
-/* ---------- 分类目录(雅虎式) ---------- */
-.dir{margin-top:26px;font-size:14px;text-align:center;line-height:2.2}
-.dir a{display:inline-block;margin:2px 4px;padding:1px 6px;border:1px solid var(--box-border);background:var(--box-bg);text-decoration:none;font-family:var(--mono)}
-.dir a:hover{background:var(--hl);color:var(--text)}
-body.crt .dir a:hover{background:#00ff40;color:#0a0a0c}
-
-/* ---------- 双栏小盒子(小贴士 / 热门榜 / 友邻) ---------- */
-.duo{width:100%;max-width:700px;display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:30px}
-@media (max-width:640px){.duo{grid-template-columns:1fr}}
-.panel{background:var(--box-bg);border:1px solid var(--box-border);padding:10px 14px;font-size:13px}
-.panel h3{font-size:14px;border-bottom:1px solid var(--box-border);padding-bottom:5px;margin-bottom:8px;color:var(--text)}
-.panel ol{padding-left:22px;font-family:var(--mono)}
-.panel ol li{margin:2px 0}
-.panel ol a{text-decoration:none;font-family:var(--mono);font-size:13px}
-.panel p{margin:6px 0}
-.panel .hot{color:#ff0000;font-weight:bold}
-body.crt .panel .hot{color:#ff0040}
-
-/* ---------- 结果页 ---------- */
-.result-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 0 10px;border-bottom:1px solid var(--nav-border)}
-.result-top .mini{font-size:24px;font-weight:bold;color:var(--link);cursor:pointer;letter-spacing:2px;text-decoration:none}
-.result-top form{flex:1;display:flex;gap:8px;flex-wrap:wrap;min-width:220px}
-.result-top input{flex:1;min-width:140px;height:36px;padding:0 10px;border:1px solid var(--box-border);background:var(--page-bg);color:var(--text)}
-.result-top .btn{height:36px;padding:0 14px;font-size:14px}
-.stats{font-size:13px;color:var(--text-2);margin:12px 0 4px}
-
-.mode-banner{
-  border:1px dashed #ff6600;background:#fff8e6;color:#7a4a00;
-  font-size:13px;padding:8px 12px;margin:10px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-}
-body.crt .mode-banner{background:#1a1a1e;color:#ffaa00;border-color:#ffaa00}
-.mode-banner button{height:28px;padding:0 10px;font-size:13px;border:1px solid #ff6600;background:#ff6600;color:#fff;border-radius:3px}
-body.crt .mode-banner button{background:#ffaa00;border-color:#ffaa00;color:#0a0a0c}
-
-.editor-note{
-  border:1px solid var(--box-border);background:var(--box-bg);
-  font-size:14px;padding:10px 14px;margin:12px 0;
-}
-.editor-note b{background:var(--hl);color:var(--text);padding:0 6px;font-family:var(--mono)}
-body.crt .editor-note b{background:#00ff40;color:#0a0a0c}
-
-.results{list-style:none;margin-top:6px}
-.result-item{padding:14px 0 16px;border-bottom:1px dotted var(--box-border)}
-.result-item .rt{font-size:19px;line-height:1.4}
-.result-item .ru{font-size:13px;color:var(--url-green);font-family:var(--mono);word-break:break-all;margin:2px 0}
-.result-item .ru a{font-size:13px;margin-left:10px;white-space:nowrap}
-.result-item .rs{font-size:16px;margin-top:2px}
-.result-item .ra{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:var(--text-2);font-family:var(--mono);flex-wrap:wrap}
-.pr-frame{
-  width:110px;height:10px;border:1px solid var(--box-border);background:var(--page-bg);
-  position:relative;overflow:hidden;
-}
-.pr-fill{height:100%;background:linear-gradient(180deg,#4ade80,var(--pr-bar) 55%,#007a33)}
-body.crt .pr-fill{background:linear-gradient(180deg,#baffd0,#00ff40 55%,#00802a)}
-.pr-num{color:var(--url-green);font-weight:bold}
-.tag-local{border:1px solid #ff6600;color:#ff6600;font-size:11px;padding:0 4px;margin-left:6px}
-body.crt .tag-local{border-color:#ffaa00;color:#ffaa00}
-
-.pager{margin:22px 0;text-align:center;font-size:14px}
-.pager a,.pager b{display:inline-block;min-width:30px;padding:2px 8px;margin:0 2px;border:1px solid var(--btn-border);background:var(--btn-bg);text-decoration:none}
-.pager b{background:var(--hl);border-color:var(--box-border);color:var(--text)}
-.pager a:hover{background:var(--hl)}
-body.crt .pager b,body.crt .pager a:hover{background:#00ff40;color:#0a0a0c}
-.pager .cur{background:var(--accent);color:#fff;border-color:var(--accent)}
-body.crt .pager .cur{background:#00ff40;color:#0a0a0c;border-color:#00ff40}
-
-/* ---------- 老式检索中动画 ---------- */
-.searching{padding:60px 0;text-align:center;font-family:var(--mono);font-size:15px;color:var(--text-2)}
-.searching .spin{display:inline-block;animation:spin 1s steps(4) infinite;font-size:28px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.searching .msg{margin-top:12px;min-height:1.5em}
-
-.error-box{
-  border:2px solid #cc0000;background:#fff0f0;color:#7a0000;
-  padding:16px;margin:20px 0;font-size:14px;
-}
-body.crt .error-box{background:#1a0a0a;border-color:#ff0040;color:#ff8080}
-.error-box h3{font-size:16px;margin-bottom:6px}
-
-/* ---------- 弹窗(老式 Windows 风) ---------- */
-.modal-mask{
-  position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;
-  display:flex;align-items:center;justify-content:center;padding:16px;
-}
-.modal{
-  width:min(480px,100%);background:var(--page-bg);border:2px solid var(--box-border);
-  box-shadow:6px 6px 0 rgba(0,0,0,.35);
-}
-.modal .m-head{
-  background:var(--accent);color:#fff;font-weight:bold;font-size:14px;
-  display:flex;justify-content:space-between;align-items:center;padding:5px 10px;
-}
-body.crt .modal .m-head{background:#1a1a1e;color:#00ff40;border-bottom:1px solid #00ff40}
-.modal .m-body{padding:16px;font-size:14px;max-height:60dvh;overflow:auto}
-.modal .m-foot{padding:0 16px 14px;display:flex;gap:10px;justify-content:flex-end}
-.m-close{background:#fff;color:#000;border:1px solid #fff;width:22px;height:20px;line-height:1;font-weight:bold;font-size:12px}
-body.crt .m-close{background:#0a0a0c;color:#00ff40;border-color:#00ff40}
-.field{margin:10px 0}
-.field label{display:block;font-size:13px;margin-bottom:4px;font-family:var(--mono)}
-.field input,.field textarea{
-  width:100%;padding:6px 8px;border:1px solid var(--box-border);background:var(--page-bg);color:var(--text);
-}
-.status-line{font-size:12px;font-family:var(--mono);color:var(--text-2);margin-top:8px;min-height:1.5em}
-
-/* ---------- 留言本 ---------- */
-.gb-entry{border-bottom:1px dashed var(--box-border);padding:8px 0;font-size:13px}
-.gb-entry .who{font-weight:bold;color:var(--link)}
-.gb-entry .when{font-family:var(--mono);font-size:12px;color:var(--text-2);margin-left:8px}
-.gb-entry .txt{margin-top:2px}
-
-/* ---------- 页脚 ---------- */
-footer{
-  border-top:1px solid var(--nav-border);background:var(--nav-bg);
-  padding:18px 16px 28px;text-align:center;font-size:12px;color:var(--text-2);line-height:2;
-}
-.counter{display:inline-flex;gap:2px;margin:4px 0}
-.counter i{
-  display:inline-block;width:14px;height:20px;line-height:20px;text-align:center;
-  background:var(--text);color:var(--page-bg);font-family:var(--mono);font-size:12px;font-style:normal;border-radius:2px;
-}
-footer a{font-size:12px}
-.shake{animation:shake .4s}
-@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-</style>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='14' cy='14' r='9' fill='none' stroke='%231b39c8' stroke-width='3'/%3E%3Cline x1='21' y1='21' x2='29' y2='29' stroke='%231b39c8' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <!-- ===================== 导航条 ===================== -->
 <nav class="nav">
-  <a class="brand" id="brandHome">深搜 <span class="en">DeepSou</span></a>
+  <a class="brand" href="index.html">深搜 <span class="en">DeepSou</span></a>
   <ul class="links">
-    <li><a href="#" id="lnkHome">首页</a></li><li class="sep">|</li>
-    <li><a href="#" id="lnkSetHome">设为首页</a></li><li class="sep">|</li>
-    <li><a href="#" id="lnkFav">加入收藏</a></li><li class="sep">|</li>
-    <li><a href="#" id="lnkGuest">留言本</a></li><li class="sep">|</li>
-    <li><a href="#" id="lnkAbout">关于本站</a></li><li class="sep">|</li>
-    <li><a href="#" id="lnkSetting">API 设置</a></li><li class="sep">|</li>
-    <li><a href="#" id="lnkTheme">夜视模式</a></li>
+    <li><a href="index.html">首页</a></li><li class="sep">|</li>
+    <li><a href="dir.html">分类目录</a></li><li class="sep">|</li>
+    <li><a href="guestbook.html">留言本</a></li><li class="sep">|</li>
+    <li><a href="about.html">关于本站</a></li><li class="sep">|</li>
+    <li><a href="settings.html">API 设置</a></li><li class="sep">|</li>
+    <li><a href="#" class="js-theme">夜视模式</a></li>
   </ul>
 </nav>
 
-<div class="marquee"><span id="mqText">★ 欢迎使用深搜 DeepSou —— 回到手动搜索的年代 ★ 检索接入 DeepSeek 网页搜索,结果按权威值从高到低排列 ★ 深搜一下,你就知道 ★ 建议使用 IE 6.0 以上浏览器访问本站 ★</span></div>
+<div class="marquee"><span>★ 欢迎使用深搜 DeepSou —— 回到手动搜索的年代 ★ 检索接入 DeepSeek 网页搜索,结果按权威值从高到低排列 ★ 深搜一下,你就知道 ★ 建议使用 IE 6.0 以上浏览器访问本站 ★</span></div>
 
-<!-- ===================== 首页视图 ===================== -->
-<div class="view-home" id="viewHome">
-  <div class="wrap col">
-    <div class="biglogo">
-      <h1>深搜</h1>
-      <div class="sub">DeepSou · 接入 DeepSeek 网页搜索 · est.1998 (复活于 2026)</div>
-    </div>
+<main>
+<!-- ===================== 2009 百度式首页 ===================== -->
+<div class="home">
+  <div class="home-logo">
+    <h1>深 搜</h1>
+    <div class="en">DeepSou · 接入 DeepSeek 网页搜索 · est. 1998 (复活于 2026)</div>
+  </div>
 
-    <form class="searchform" id="homeForm" autocomplete="off">
-      <input type="text" id="homeInput" placeholder="请输入关键词,例如:恐龙是怎么灭绝的" aria-label="搜索关键词">
-      <button type="submit" class="btn btn-primary">深搜一下</button>
-      <button type="button" class="btn" id="btnLucky">手气不错</button>
-    </form>
+  <!-- 搜索框上方蓝色 tab 行 -->
+  <div class="home-tabs" id="homeTabs">
+    <a href="#" data-tab="网页" class="cur">网页</a>
+    <a href="#" data-tab="新闻">新闻</a>
+    <a href="#" data-tab="贴吧">贴吧</a>
+    <a href="#" data-tab="知道">知道</a>
+    <a href="#" data-tab="MP3">MP3</a>
+    <a href="#" data-tab="图片">图片</a>
+    <a href="#" data-tab="视频">视频</a>
+    <a href="#" data-tab="地图">地图</a>
+    <a href="#" data-tab="百科">百科</a>
+  </div>
 
-    <div class="dir" id="dirRow">
-      分类目录:
-      <a href="#" data-q="今日新闻">[新闻时事]</a>
-      <a href="#" data-q="前沿科学技术">[科学技术]</a>
-      <a href="#" data-q="电脑网络知识">[电脑网络]</a>
-      <a href="#" data-q="生活百科常识">[生活百科]</a>
-      <a href="#" data-q="文学艺术作品">[文学艺术]</a>
-      <a href="#" data-q="娱乐休闲推荐">[娱乐休闲]</a>
-      <a href="#" data-q="体育健康资讯">[体育健康]</a>
-      <a href="#" data-q="美食菜谱大全">[美食菜谱]</a>
-    </div>
+  <!-- 大搜索框 -->
+  <form class="home-form" id="homeForm" autocomplete="off">
+    <input type="text" id="homeInput" placeholder="请输入关键词,例如:恐龙是怎么灭绝的" aria-label="搜索关键词">
+    <button type="submit" class="go">深搜一下</button>
+  </form>
+  <div style="margin-top:10px"><button type="button" class="btn" id="btnLucky">手气不错</button></div>
 
-    <div class="duo">
-      <div class="panel">
-        <h3>▍热门搜索榜</h3>
-        <ol>
-          <li><a href="#" data-q="2026 年人工智能最新进展">2026 人工智能进展</a></li>
-          <li><a href="#" data-q="大模型使用教程">大模型使用教程</a></li>
-          <li><a href="#" data-q="如何选购二手显卡">如何选购二手显卡</a></li>
-          <li><a href="#" data-q="ESP32 入门教程">ESP32 入门教程</a></li>
-          <li><a href="#" data-q="夏天清凉菜谱">夏天清凉菜谱</a></li>
-          <li><a href="#" data-q="复古网页设计欣赏">复古网页设计</a></li>
-        </ol>
-      </div>
-      <div class="panel">
-        <h3>▍搜索小贴士</h3>
-        <p>· 关键词越具体,结果越准确,支持 site: 与引号语法;</p>
-        <p>· 结果由 <span class="hot">DeepSeek 网页搜索</span> 提供,按权威值排序;</p>
-        <p>· 权威值 0–10(由接口权威性 0–4 折算),<span class="hot">≥7.5 为极权威</span>;</p>
-        <p>· 未配置 API Key 时使用本地演示数据;</p>
-        <p>· 点击「快照」可查看网页存档。</p>
-      </div>
-    </div>
+  <!-- 搜索框下方功能链接行 -->
+  <div class="home-links">
+    <a href="#" class="js-sethome">把深搜设为首页</a>|
+    <a href="#" class="js-fav">加入收藏夹</a>|
+    <a href="dir.html">分类目录</a>|
+    <a href="guestbook.html">留言本</a>|
+    <a href="settings.html">API 设置</a>
+  </div>
 
-    <div class="panel" style="width:100%;max-width:700px;margin-top:14px">
-      <h3>▍友邻站点</h3>
-      <p>
-        <a href="https://api-docs.deepseek.com/zh-cn/api/search" target="_blank" rel="noopener">DeepSeek 搜索 API 文档</a> ·
-        <a href="https://github.com" target="_blank" rel="noopener">GitHub 代码仓库</a> ·
-        <a href="https://zh.wikipedia.org" target="_blank" rel="noopener">维基百科</a>
-      </p>
-    </div>
+  <div class="home-tip">
+    <p>· 结果由 <span class="hot">DeepSeek 网页搜索 API</span> 提供,按权威值 0–10 排序(接口权威性 0–4 折算,≥7.5 为极权威);</p>
+    <p>· 未配置 API Key 时使用本地演示数据(结果带「本地」标记),点右上角「API 设置」接入真实搜索;</p>
+    <p>· 支持 site: 与引号语法,关键词越具体结果越准确。</p>
   </div>
 </div>
+</main>
 
-<!-- ===================== 结果页视图 ===================== -->
-<div class="view-results hidden" id="viewResults">
-  <div class="wrap">
-    <div class="result-top">
-      <a class="mini" id="miniHome" title="返回首页">深搜</a>
-      <form id="topForm" autocomplete="off">
-        <input type="text" id="topInput" aria-label="搜索关键词">
-        <button type="submit" class="btn btn-primary">深搜一下</button>
-      </form>
-    </div>
-
-    <div class="stats mono" id="statsLine"></div>
-    <div class="mode-banner hidden" id="modeBanner">
-      <span>※ 离线模式:尚未配置 DeepSeek API Key,以下为本地演示数据。</span>
-      <button id="modeCfg" type="button">立即配置</button>
-    </div>
-    <div class="editor-note hidden" id="editorNote"></div>
-    <div class="searching hidden" id="searching">
-      <span class="spin">◐</span>
-      <div class="msg" id="searchMsg">正在连接检索服务器…</div>
-    </div>
-    <div class="error-box hidden" id="errorBox"></div>
-    <ol class="results" id="resultList"></ol>
-    <div class="pager" id="pager"></div>
-  </div>
-</div>
-
-<!-- ===================== 页脚 ===================== -->
+<!-- ===================== 页脚(2009 百度式版权行) ===================== -->
 <footer>
-  <div>您是第 <span class="counter" id="counter"></span> 位访问本站的朋友</div>
-  <div>
-    <a href="#" id="ftAbout">关于本站</a> ·
-    <a href="#" id="ftGuest">留言本</a> ·
-    <a href="#" id="ftSetting">API 设置</a>
-  </div>
-  <div class="mono">© 1998–2026 深搜 DeepSou · 人工搜索,权威排序 · 最佳分辨率 1024×768 · 兼容 Netscape Navigator 4.0</div>
-  <div class="mono">检索由 DeepSeek 网页搜索提供 · 无追踪</div>
+  <div class="mono">©2026 DeepSou 深搜 · <a href="about.html">关于本站</a> · <a href="about.html#privacy">隐私说明</a> · <a href="guestbook.html">留言本</a> · <a href="dir.html">分类目录</a></div>
+  <div class="mono">最佳分辨率 1024×768 · 兼容 Netscape Navigator 4.0 · 您是第 <span class="counter" id="counter"></span> 位访客</div>
   <div class="mono" id="ftDate"></div>
 </footer>
 
-<!-- ===================== 弹窗 ===================== -->
+<!-- ===================== 弹窗骨架 ===================== -->
 <div class="modal-mask hidden" id="modalMask" role="dialog" aria-modal="true">
   <div class="modal">
     <div class="m-head"><span id="mTitle">提示</span><button class="m-close" id="mClose" aria-label="关闭">×</button></div>
@@ -386,350 +86,7 @@ footer a{font-size:12px}
   </div>
 </div>
 
-<script>
-/* ============================================================
-   深搜 DeepSou · 核心逻辑
-   检索后端: DeepSeek 网页搜索 API (POST /v1/tools/search)
-   未配置 Key 时退回本地演示数据
-   ============================================================ */
-(function(){
-"use strict";
-const $ = id => document.getElementById(id);
-const store = {
-  get(k,d){ try{ const v=localStorage.getItem("deepsou_"+k); return v===null?d:JSON.parse(v);}catch(e){return d;} },
-  set(k,v){ try{ localStorage.setItem("deepsou_"+k,JSON.stringify(v)); }catch(e){} }
-};
-
-/* ---------- 访问计数器 ---------- */
-let visits = store.get("visits", 1024) + 1;
-store.set("visits", visits);
-$("counter").innerHTML = String(visits).padStart(6,"0").split("").map(d=>"<i>"+d+"</i>").join("");
-
-/* ---------- 页脚日期(老式格式) ---------- */
-(function(){
-  const w=["日","一","二","三","四","五","六"];
-  const d=new Date();
-  $("ftDate").textContent = "今天是 "+d.getFullYear()+" 年 "+(d.getMonth()+1)+" 月 "+d.getDate()+" 日 星期"+w[d.getDay()]+" · 最后更新:2026-11-14";
-})();
-
-/* ---------- 夜视模式 ---------- */
-function applyTheme(crt){
-  document.body.classList.toggle("crt", crt);
-  $("lnkTheme").textContent = crt ? "经典模式" : "夜视模式";
-  store.set("crt", crt);
-}
-applyTheme(store.get("crt", false));
-$("lnkTheme").addEventListener("click", e=>{ e.preventDefault(); applyTheme(!document.body.classList.contains("crt")); });
-
-/* ---------- 弹窗工具 ---------- */
-const mask=$("modalMask");
-function openModal(title, bodyHTML, footButtons){
-  $("mTitle").textContent=title;
-  $("mBody").innerHTML=bodyHTML;
-  const foot=$("mFoot"); foot.innerHTML="";
-  (footButtons||[{label:"关闭"}]).forEach(b=>{
-    const btn=document.createElement("button");
-    btn.className="btn"; btn.textContent=b.label;
-    btn.addEventListener("click",()=>{ b.onClick?b.onClick():closeModal(); });
-    foot.appendChild(btn);
-  });
-  mask.classList.remove("hidden");
-  const first=foot.querySelector("button"); if(first) first.focus();
-}
-function closeModal(){ mask.classList.add("hidden"); }
-$("mClose").addEventListener("click", closeModal);
-mask.addEventListener("click", e=>{ if(e.target===mask) closeModal(); });
-document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !mask.classList.contains("hidden")) closeModal(); });
-
-/* ---------- 关于本站 ---------- */
-const aboutHTML = `
-  <p><b>深搜 DeepSou</b> 是一个致敬互联网早期时代的检索引擎界面。</p>
-  <p style="margin-top:8px">没有算法推荐、没有无尽的信息流。你输入关键词,检索服务翻遍互联网,把结果按<b>权威值</b>排好交给你——像二十年前那样,一条一条,点过去。</p>
-  <p style="margin-top:8px">本站调用 DeepSeek 网页搜索 API 获取真实结果;不配置 Key 时,用本地演示数据带你重温整套流程。</p>
-  <p class="mono" style="margin-top:8px;font-size:12px">—— 站长 敬上,2026 年秋,于赛博阁</p>`;
-function showAbout(){ openModal("关于本站", aboutHTML); }
-
-/* ---------- 设为首页 / 加入收藏 ---------- */
-$("lnkSetHome").addEventListener("click", e=>{ e.preventDefault();
-  openModal("设为首页", `<p>古老的手法已经失传了。</p><p style="margin-top:8px">现代浏览器不再允许网页把自己设为主页。请手动操作:浏览器设置 → 启动时 → 打开特定网页 → 填入本站地址。</p><p class="mono" style="margin-top:8px;font-size:12px">我们会在原地等你,就像 1998 年那样。</p>`);
-});
-$("lnkFav").addEventListener("click", e=>{ e.preventDefault();
-  try{ window.external.AddFavorite(location.href, "深搜 DeepSou"); return; }catch(_){}
-  openModal("加入收藏夹", `<p>请按 <b>Ctrl + D</b>(Mac 为 ⌘ + D)将本站加入收藏夹。</p><p class="mono" style="margin-top:8px;font-size:12px">收藏本站的网友,据说运气都不会太差。</p>`);
-});
-
-/* ---------- 留言本 ---------- */
-function guestHTML(){
-  const list = store.get("guestbook", []);
-  const items = list.length
-    ? list.map(g=>`<div class="gb-entry"><span class="who">${esc(g.who)}</span><span class="when">${g.when}</span><div class="txt">${esc(g.txt)}</div></div>`).join("")
-    : `<p class="mono" style="font-size:12px;color:var(--text-2)">（留言本空空如也,来抢沙发）</p>`;
-  return `
-    <div id="gbList" style="max-height:220px;overflow:auto;margin-bottom:10px">${items}</div>
-    <div class="field"><label>您的昵称</label><input id="gbWho" maxlength="16" placeholder="例如:热心网友小王"></div>
-    <div class="field"><label>留言内容</label><textarea id="gbTxt" rows="3" maxlength="200" placeholder="说点什么吧,站长会看"></textarea></div>
-    <div class="status-line" id="gbStatus"></div>`;
-}
-function showGuest(){
-  openModal("留言本", guestHTML(), [
-    {label:"关闭"},
-    {label:"提交留言", onClick(){
-      const who=$("gbWho").value.trim()||"匿名网友";
-      const txt=$("gbTxt").value.trim();
-      if(!txt){ $("gbStatus").textContent="※ 留言内容不能为空"; return; }
-      const list=store.get("guestbook",[]);
-      const d=new Date();
-      list.unshift({who, txt, when:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`});
-      store.set("guestbook", list.slice(0,50));
-      $("mBody").innerHTML=guestHTML();
-      $("gbStatus").textContent="※ 留言成功,感谢支持本站!";
-      setTimeout(showGuestRefresh, 600);
-    }}
-  ]);
-}
-function showGuestRefresh(){ showGuest(); }
-function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-
-/* ---------- API 设置(DeepSeek 网页搜索) ---------- */
-function showSettings(){
-  const cfg = store.get("api", {key:"", base:"https://api.deepseek.com"});
-  openModal("API 设置(DeepSeek 网页搜索)", `
-    <p style="font-size:13px">深搜通过 <b>DeepSeek 网页搜索 API</b>(POST /v1/tools/search)获取真实检索结果。Key 仅保存在您浏览器的 localStorage 中;未配置时使用本地演示数据。</p>
-    <div class="field"><label>API Key(sk- 开头)</label><input id="apiKey" type="password" value="${esc(cfg.key)}" placeholder="sk-xxxxxxxxxxxxxxxx"></div>
-    <div class="field"><label>接口地址</label><input id="apiBase" value="${esc(cfg.base)}"></div>
-    <div class="status-line" id="apiStatus"></div>`,
-    [
-      {label:"取消"},
-      {label:"清除 Key", onClick(){ store.set("api",{key:"",base:"https://api.deepseek.com"}); closeModal(); if(state.query) doSearch(state.query); else switchView("home"); }},
-      {label:"测试连接", onClick(){
-        const key=$("apiKey").value.trim();
-        if(!key){ $("apiStatus").textContent="※ 请先填写 API Key"; return; }
-        $("apiStatus").textContent="… 正在测试搜索接口";
-        fetch($("apiBase").value.trim().replace(/\/$/,"")+"/v1/tools/search",{
-          method:"POST",
-          headers:{"Content-Type":"application/json", Authorization:"Bearer "+key},
-          body:JSON.stringify({query:"DeepSeek", count:1})
-        }).then(r=>r.json().then(j=>{
-            if(r.ok && Array.isArray(j.results)){ $("apiStatus").textContent="√ 连接成功,搜索接口可用"; }
-            else { $("apiStatus").textContent="× 连接失败:"+(j.error&&j.error.message?j.error.message:"HTTP "+r.status); }
-          }))
-          .catch(err=>{ $("apiStatus").textContent="× 网络错误:"+err.message; });
-      }},
-      {label:"保存", onClick(){
-        const key=$("apiKey").value.trim();
-        store.set("api",{key, base:$("apiBase").value.trim()||"https://api.deepseek.com"});
-        closeModal();
-        if(state.query) doSearch(state.query); else switchView("home");
-      }}
-    ]);
-}
-
-/* ---------- 快照弹窗 ---------- */
-function showSnapshot(item){
-  openModal("网页快照", `
-    <p class="mono" style="font-size:12px;color:var(--url-green);word-break:break-all">${esc(item.url)}</p>
-    <div class="panel" style="margin-top:10px"><h3>${esc(item.title)}</h3><p style="margin-top:6px">${esc(item.summary)}</p></div>
-    <p class="mono" style="margin-top:10px;font-size:12px;color:var(--text-2)">来源:${esc(item.site||"未知站点")} · 存档时间:${new Date().toLocaleString("zh-CN")}</p>`);
-}
-
-/* ---------- 视图切换 ---------- */
-const state = { query:"", results:[], page:1, lucky:false, offline:false };
-function switchView(v){
-  $("viewHome").classList.toggle("hidden", v!=="home");
-  $("viewResults").classList.toggle("hidden", v!=="results");
-  window.scrollTo(0,0);
-}
-function goHome(e){ if(e) e.preventDefault(); state.query=""; switchView("home"); }
-$("brandHome").addEventListener("click", goHome);
-$("lnkHome").addEventListener("click", goHome);
-$("miniHome").addEventListener("click", goHome);
-$("lnkAbout").addEventListener("click", e=>{e.preventDefault(); showAbout();});
-$("ftAbout").addEventListener("click", e=>{e.preventDefault(); showAbout();});
-$("lnkGuest").addEventListener("click", e=>{e.preventDefault(); showGuest();});
-$("ftGuest").addEventListener("click", e=>{e.preventDefault(); showGuest();});
-$("lnkSetting").addEventListener("click", e=>{e.preventDefault(); showSettings();});
-$("ftSetting").addEventListener("click", e=>{e.preventDefault(); showSettings();});
-$("modeCfg").addEventListener("click", showSettings);
-
-/* ---------- 分类目录 & 热门榜 ---------- */
-document.querySelectorAll("[data-q]").forEach(a=>{
-  a.addEventListener("click", e=>{ e.preventDefault(); doSearch(a.getAttribute("data-q")); });
-});
-
-/* ---------- 表单 ---------- */
-$("homeForm").addEventListener("submit", e=>{ e.preventDefault(); const q=$("homeInput").value.trim(); if(!q){ shake($("homeInput")); return;} doSearch(q); });
-$("topForm").addEventListener("submit", e=>{ e.preventDefault(); const q=$("topInput").value.trim(); if(!q){ shake($("topInput")); return;} doSearch(q); });
-$("btnLucky").addEventListener("click", ()=>{ const q=$("homeInput").value.trim()||$("homeInput").getAttribute("placeholder").replace("请输入关键词,例如:",""); state.lucky=true; doSearch(q); });
-function shake(el){ el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); el.focus(); }
-
-/* ---------- 检索中动画文案 ---------- */
-const SEARCH_MSGS_API = ["正在连接检索服务器…","正在查询索引库…","DeepSeek 正在翻阅网页…","正在按权威值排序…","即将为您呈现结果…"];
-const SEARCH_MSGS_LOCAL = ["正在查询本地索引库…","正在翻阅资料…","正在按权威值排序…","即将为您呈现结果…"];
-
-/* ---------- DeepSeek 网页搜索 API ---------- */
-async function callSearchAPI(q){
-  const cfg = store.get("api", {key:"", base:"https://api.deepseek.com"});
-  const t0 = performance.now();
-  const res = await fetch(cfg.base.replace(/\/$/,"")+"/v1/tools/search",{
-    method:"POST",
-    headers:{"Content-Type":"application/json", Authorization:"Bearer "+cfg.key},
-    body:JSON.stringify({query:q, count:12, need_content:false})
-  });
-  if(!res.ok){
-    let msg="HTTP "+res.status;
-    try{ const j=await res.json(); if(j.error&&j.error.message) msg=j.error.message; }catch(_){}
-    throw {message:"搜索接口返回错误:"+msg};
-  }
-  const data = await res.json();
-  if(!Array.isArray(data.results)) throw {message:"搜索接口返回格式异常"};
-  return {
-    took:(performance.now()-t0)/1000,
-    results:data.results.map(r=>{
-      const raw = (typeof r.authority==="number")? r.authority : -1;
-      /* 接口权威性 0~4(-1 未知)折算为 0~10;未知时用 rerank_score(0~3)折算 */
-      const score10 = raw>=0 ? raw/4*10 : (r.rerank_score||0)/3*10;
-      let dateStr="";
-      if(r.date){ const m=String(r.date).slice(0,10); dateStr=/^\d{4}-\d{2}-\d{2}/.test(m)? m : ""; }
-      return {
-        title: String(r.title||"未命名网页"),
-        url: String(r.url||"#"),
-        summary: String(r.snippet||r.summary||""),
-        site: r.site_name? String(r.site_name) : "",
-        date: dateStr,
-        score: score10,
-        raw: raw
-      };
-    }).sort((a,b)=> b.score-a.score)
-  };
-}
-
-/* ---------- 本地演示数据(无 Key 时使用) ---------- */
-function localResults(q){
-  const sites=[
-    {host:"zh.wikipedia.org", path:"/wiki/", tag:"百科"},
-    {host:"www.bilibili.com", path:"/video/", tag:"视频"},
-    {host:"www.zhihu.com", path:"/question/", tag:"问答"},
-    {host:"github.com", path:"/", tag:"开源"},
-    {host:"blog.csdn.net", path:"/article/", tag:"博客"},
-    {host:"www.cnblogs.com", path:"/", tag:"博客"},
-    {host:"www.baike.baidu.com", path:"/item/", tag:"百科"},
-    {host:"www.gitee.com", path:"/", tag:"开源"}
-  ];
-  return sites.map((s,i)=>({
-    title:`${s.tag} | 关于「${q}」的权威${s.tag}资料(第${i+1}篇)`,
-    url:`https://${s.host}${s.path}${encodeURIComponent(q)}`,
-    summary:`这是${s.host}上关于「${q}」的一篇高质量${s.tag}内容,涵盖核心概念、实践方法与常见问题,由社区长期维护更新,适合入门与进阶读者参考。`,
-    site:s.host,
-    date:`2026-${String((i%12)+1).padStart(2,"0")}`,
-    score:9.6-i*0.8,
-    raw:Math.round((9.6-i*0.8)/2.5)
-  }));
-}
-
-/* ---------- 搜索主流程 ---------- */
-async function doSearch(q, page){
-  if(page===undefined){
-    state.query=q; state.page=1; state.results=[];
-    $("topInput").value=q;
-  }
-  state.page = page || state.page;
-  if(page!==undefined && state.results.length){ render(); window.scrollTo(0,0); return; }
-
-  const cfg = store.get("api", {key:"", base:"https://api.deepseek.com"});
-  const offline = !cfg.key;
-  state.offline = offline;
-
-  switchView("results");
-  $("errorBox").classList.add("hidden");
-  $("resultList").innerHTML=""; $("pager").innerHTML="";
-  $("editorNote").classList.remove("hidden");
-  if(offline){
-    $("modeBanner").classList.remove("hidden");
-    $("editorNote").innerHTML=`<b>站长的话</b>　离线模式:未配置 API Key,以下结果由本地生成,权威值为示例打分,排序规则为权威值从高到低。`;
-  }else{
-    $("modeBanner").classList.add("hidden");
-    $("editorNote").innerHTML=`<b>站长的话</b>　本页结果由 DeepSeek 网页搜索 API 提供,权威值由接口权威性(0–4)折算为 0–10,并按从高到低排序。`;
-  }
-  $("searching").classList.remove("hidden");
-  $("statsLine").textContent="深搜一下,「"+q+"」";
-
-  const msgs = offline? SEARCH_MSGS_LOCAL : SEARCH_MSGS_API;
-  let mi=0;
-  $("searchMsg").textContent=msgs[0];
-  const msgTimer=setInterval(()=>{ mi=(mi+1)%msgs.length; $("searchMsg").textContent=msgs[mi]; }, 600);
-  const t0=performance.now();
-
-  try{
-    let out;
-    if(offline){
-      await sleep(1400);
-      out={took:(performance.now()-t0)/1000, results:localResults(q)};
-    }else{
-      out=await callSearchAPI(q);
-    }
-    state.results=out.results;
-    state.took=out.took.toFixed(1);
-    clearInterval(msgTimer);
-    $("searching").classList.add("hidden");
-    if(state.lucky && state.results.length){
-      state.lucky=false;
-      location.assign(state.results[0].url);
-      return;
-    }
-    render();
-  }catch(err){
-    clearInterval(msgTimer);
-    $("searching").classList.add("hidden");
-    state.lucky=false;
-    $("errorBox").classList.remove("hidden");
-    $("errorBox").innerHTML=`<h3>检索失败</h3><p>${esc(err.message||"网络连接超时,请稍后再试。")}</p><p class="mono" style="margin-top:6px;font-size:12px">请检查 API 设置或网络后重试</p>`;
-    $("statsLine").textContent="";
-  }
-}
-function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-/* ---------- 渲染结果(按权威值排序 + 分页) ---------- */
-const PAGE_SIZE=6;
-function render(){
-  const q=state.query, all=state.results;
-  $("statsLine").textContent = all.length
-    ? `深搜为您找到「${q}」相关结果约 ${all.length} 条(用时 ${state.took} 秒)· 已按权威值排序`
-    : `很抱歉,没有找到与「${q}」相关的结果`;
-  const pages=Math.max(1, Math.ceil(all.length/PAGE_SIZE));
-  if(state.page>pages) state.page=pages;
-  const items=all.slice((state.page-1)*PAGE_SIZE, state.page*PAGE_SIZE);
-
-  $("resultList").innerHTML = items.map((r,i)=>{
-    const rank=(state.page-1)*PAGE_SIZE+i+1;
-    const pct=Math.round(r.score*10);
-    return `<li class="result-item">
-      <div class="rt"><span class="mono" style="font-size:13px;color:var(--text-2)">${rank}.</span>
-        <a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.title)}</a>${state.offline?'<span class="tag-local">本地</span>':''}</div>
-      <div class="ru">${esc(r.url)} <a href="#" data-snap="${rank-1}">快照</a></div>
-      <div class="rs">${esc(r.summary)}</div>
-      <div class="ra">权威值 <span class="pr-frame"><span class="pr-fill" style="display:block;width:${pct}%"></span></span> <span class="pr-num">${r.score.toFixed(1)}</span> / 10${r.site?` · ${esc(r.site)}`:""}${r.date?` · ${esc(r.date)}`:""}</div>
-    </li>`;
-  }).join("");
-
-  $("resultList").querySelectorAll("[data-snap]").forEach(a=>{
-    a.addEventListener("click", e=>{ e.preventDefault(); showSnapshot(items[+a.getAttribute("data-snap")]); });
-  });
-
-  /* 分页器 */
-  const pg=$("pager");
-  if(pages<=1){ pg.innerHTML=""; return; }
-  let h="";
-  if(state.page>1) h+=`<a href="#" data-p="${state.page-1}">上一页</a>`;
-  for(let i=1;i<=pages;i++){
-    h+= i===state.page ? `<b class="cur">${i}</b>` : `<a href="#" data-p="${i}">${i}</a>`;
-  }
-  if(state.page<pages) h+=`<a href="#" data-p="${state.page+1}">下一页</a>`;
-  pg.innerHTML=h;
-  pg.querySelectorAll("[data-p]").forEach(a=>{
-    a.addEventListener("click", e=>{ e.preventDefault(); doSearch(q, +a.getAttribute("data-p")); window.scrollTo(0,0); });
-  });
-}
-})();
-</script>
+<script src="js/common.js"></script>
+<script src="js/home.js"></script>
 </body>
 </html>

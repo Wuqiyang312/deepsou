@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="深搜 DeepSou 留言本 —— 给站长的留言只存在你自己的浏览器里。">
+<title>留言本 - 深搜 DeepSou</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='14' cy='14' r='9' fill='none' stroke='%231b39c8' stroke-width='3'/%3E%3Cline x1='21' y1='21' x2='29' y2='29' stroke='%231b39c8' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="index.html">深搜 <span class="en">DeepSou</span></a>
+  <ul class="links">
+    <li><a href="index.html">首页</a></li><li class="sep">|</li>
+    <li><a href="dir.html">分类目录</a></li><li class="sep">|</li>
+    <li><a href="guestbook.html">留言本</a></li><li class="sep">|</li>
+    <li><a href="about.html">关于本站</a></li><li class="sep">|</li>
+    <li><a href="settings.html">API 设置</a></li><li class="sep">|</li>
+    <li><a href="#" class="js-theme">夜视模式</a></li>
+  </ul>
+</nav>
+
+<div class="marquee"><span>★ 深搜留言本 —— 来都来了,签个名再走 ★ 留言只保存在你自己的浏览器中,站长看不到,但仪式感是真的 ★</span></div>
+
+<main>
+<div class="page-title">
+  <h2>▍留言本</h2>
+  <div class="sub">Guestbook · 留言存于您浏览器的 localStorage · 仅您本人可见</div>
+</div>
+
+<div class="page-body">
+  <div class="panel">
+    <h3>▍大家的留言</h3>
+    <div class="gb-list" id="gbList" style="max-width:none;margin:0"></div>
+  </div>
+
+  <div class="gb-form panel">
+    <h3>▍写点什么</h3>
+    <div class="field"><label>您的昵称</label><input id="gbWho" maxlength="16" placeholder="例如:热心网友小王"></div>
+    <div class="field"><label>留言内容</label><textarea id="gbTxt" rows="3" maxlength="200" placeholder="说点什么吧,站长会看"></textarea></div>
+    <div class="status-line" id="gbStatus"></div>
+    <div style="margin-top:10px"><button type="button" class="btn btn-primary" id="gbSubmit">提交留言</button></div>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="mono">©2026 DeepSou 深搜 · <a href="index.html">返回首页</a> · <a href="about.html">关于本站</a></div>
+  <div class="mono">最佳分辨率 1024×768 · 您是第 <span class="counter" id="counter"></span> 位访客</div>
+  <div class="mono" id="ftDate"></div>
+</footer>
+
+<script src="js/common.js"></script>
+<script src="js/guestbook.js"></script>
+</body>
+</html>
