@@ -1,5 +1,5 @@
 /* ============================================================
-   深搜 DeepSou · 全站共用脚本
+   深度搜索 DeepSou · 全站共用脚本
    store 读写 / HTML 转义 / 页脚日期 / 主题切换 / 弹窗
    ============================================================ */
 (function(){
@@ -74,7 +74,7 @@ function bindRetroLinks(){
   }));
   document.querySelectorAll(".js-fav").forEach(el=>el.addEventListener("click", e=>{
     e.preventDefault();
-    try{ window.external.AddFavorite(location.href, "深搜 DeepSou"); return; }catch(_){}
+    try{ window.external.AddFavorite(location.href, "深度搜索 DeepSou"); return; }catch(_){}
     openModal("加入收藏夹", `<p>请按 <b>Ctrl + D</b>(Mac 为 ⌘ + D)将本站加入收藏夹。</p><p class="mono" style="margin-top:8px;font-size:12px">收藏本站的网友,据说运气都不会太差。</p>`);
   }));
 }
