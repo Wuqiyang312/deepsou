@@ -1,0 +1,282 @@
+/* ============================================================
+   深搜 DeepSou · 全站共用样式(多文件版)
+   检索后端: DeepSeek 网页搜索 API (POST /v1/tools/search)
+   主题一「经典模式」: 白底 / 蓝链 Times New Roman + Courier 等宽
+   主题二「夜视模式」: CRT 磷光绿 / 扫描线 / 琥珀色强调
+   ============================================================ */
+:root{
+  --link:#004de5;            /* 经典网页蓝 */
+  --link-visited:#551a8b;    /* 访问过的紫 */
+  --url-green:#008000;       /* 结果地址绿 */
+  --page-bg:#ffffff;
+  --text:#0a0a0a;
+  --text-2:#333333;
+  --nav-bg:#e6e6e6;
+  --nav-border:#999999;
+  --btn-bg:#f7f7f7;
+  --btn-border:#c0c0c0;
+  --box-bg:#eaeaea;
+  --box-border:#676767;
+  --hl:#fff895;              /* 版主黄标 */
+  --pr-bar:#00c853;          /* 权威值绿条 */
+  --accent:#004de5;
+  --baidu-blue:#1b39c8;      /* 2009 百度按钮蓝 */
+  --serif:'Times New Roman','Songti SC','SimSun','Noto Serif CJK SC',serif;
+  --mono:'Courier New',Courier,'SimSun',monospace;
+}
+body.crt{
+  --link:#ffaa00;
+  --link-visited:#00ff40;
+  --url-green:#00ff40;
+  --page-bg:#0a0a0c;
+  --text:#e0ddd5;
+  --text-2:#c8c4ba;
+  --nav-bg:#111114;
+  --nav-border:#1a1a1e;
+  --btn-bg:#111114;
+  --btn-border:#8a877e;
+  --box-bg:#111114;
+  --box-border:#8a877e;
+  --hl:#00ff40;
+  --pr-bar:#00ff40;
+  --accent:#ffaa00;
+  --baidu-blue:#00cc33;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font:16px/1.7 var(--serif);
+  color:var(--text);
+  background:var(--page-bg);
+  min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column;
+}
+a{color:var(--link);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px}
+a:visited{color:var(--link-visited)}
+a:hover{color:#ff0000}
+body.crt a:hover{color:#ff0040;text-shadow:-2px 0 #0040ff,2px 0 #ff0040}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font-family:var(--serif);cursor:pointer}
+input,select,textarea{font-family:var(--serif);font-size:16px}
+.mono{font-family:var(--mono)}
+.hidden{display:none !important}
+main{flex:1}
+
+/* ---------- CRT 扫描线 / 夜视氛围 ---------- */
+body.crt{position:relative}
+body.crt::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:60;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.045) 0 1px,transparent 1px 3px);
+}
+body.crt::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:61;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%);
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- 顶部导航条(老式门户灰条) ---------- */
+.nav{
+  background:var(--nav-bg);border-bottom:1px solid var(--nav-border);
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  gap:4px 16px;padding:6px 16px;font-size:14px;
+}
+.nav .brand{display:flex;align-items:baseline;gap:8px;font-size:20px;font-weight:bold;color:var(--link);text-decoration:none;cursor:pointer}
+.nav .brand .en{font-size:12px;color:var(--text-2);font-family:var(--mono)}
+.nav .links{display:flex;flex-wrap:wrap;gap:2px 10px;list-style:none}
+.nav .links a{font-size:13px}
+.nav .sep{color:var(--text-2)}
+
+/* ---------- 跑马灯公告 ---------- */
+.marquee{
+  overflow:hidden;white-space:nowrap;border-bottom:1px dashed var(--box-border);
+  font-size:13px;color:var(--text-2);background:var(--box-bg);padding:3px 0;
+}
+.marquee span{display:inline-block;padding-left:100%;animation:mq 30s linear infinite}
+@keyframes mq{to{transform:translateX(-100%)}}
+
+/* ---------- 主体布局 ---------- */
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 40px}
+
+/* ---------- 2009 百度式首页 ---------- */
+.home{max-width:640px;margin:0 auto;padding:64px 16px 24px;text-align:center}
+.home-logo{margin-bottom:14px;user-select:none}
+.home-logo h1{
+  font-size:66px;line-height:1.1;color:var(--baidu-blue);letter-spacing:8px;font-weight:bold;
+}
+body.crt .home-logo h1{text-shadow:-3px 0 #ff0040,3px 0 #0040ff}
+.home-logo .en{
+  font-family:var(--mono);font-size:14px;color:var(--text-2);margin-top:8px;letter-spacing:2px;
+}
+/* 搜索框上方的蓝色 tab 行(网页|新闻|贴吧|知道…) */
+.home-tabs{margin-bottom:8px;font-size:14px}
+.home-tabs a{display:inline-block;margin:0 7px;text-decoration:underline}
+.home-tabs a.cur{font-weight:bold;color:var(--text);text-decoration:none;cursor:default}
+body.crt .home-tabs a.cur{color:#00ff40}
+/* 大搜索表单 */
+.home-form{display:flex;justify-content:center;gap:0;margin-top:10px}
+.home-form input{
+  width:460px;max-width:70vw;height:44px;padding:0 12px;font-size:16px;
+  border:1px solid var(--box-border);border-right:none;background:var(--page-bg);color:var(--text);
+}
+.home-form input:focus{border-color:var(--baidu-blue);outline:none}
+.home-form .go{
+  height:44px;padding:0 24px;font-size:16px;font-weight:bold;
+  background:var(--baidu-blue);border:1px solid var(--baidu-blue);color:#fff;
+}
+.home-form .go:active{border-style:inset}
+body.crt .home-form .go{background:#00ff40;border-color:#00ff40;color:#0a0a0c}
+/* 搜索框下方的功能链接行(把百度设为首页 / 加入收藏…) */
+.home-links{margin-top:14px;font-size:13px;color:var(--text-2)}
+.home-links a{margin:0 8px;font-size:13px}
+/* 首页底部小提示 */
+.home-tip{margin-top:40px;font-size:13px;color:var(--text-2)}
+.home-tip .hot{color:#ff0000;font-weight:bold}
+body.crt .home-tip .hot{color:#ff0040}
+
+/* ---------- 面板(通用盒子) ---------- */
+.panel{background:var(--box-bg);border:1px solid var(--box-border);padding:10px 14px;font-size:13px}
+.panel h3{font-size:14px;border-bottom:1px solid var(--box-border);padding-bottom:5px;margin-bottom:8px;color:var(--text)}
+.panel p{margin:6px 0}
+.panel .hot{color:#ff0000;font-weight:bold}
+body.crt .panel .hot{color:#ff0040}
+
+/* ---------- 结果页 ---------- */
+.result-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 0 10px;border-bottom:1px solid var(--nav-border)}
+.result-top .mini{font-size:26px;font-weight:bold;color:var(--baidu-blue);cursor:pointer;letter-spacing:2px;text-decoration:none}
+.result-top form{flex:1;display:flex;gap:8px;flex-wrap:wrap;min-width:220px}
+.result-top input{flex:1;min-width:140px;height:36px;padding:0 10px;border:1px solid var(--box-border);background:var(--page-bg);color:var(--text)}
+.result-top .btn{height:36px;padding:0 14px;font-size:14px}
+.stats{font-size:13px;color:var(--text-2);margin:12px 0 4px}
+.cur-tab{display:inline-block;border:1px solid var(--box-border);background:var(--box-bg);padding:0 8px;margin-right:8px;font-family:var(--mono)}
+
+.mode-banner{
+  border:1px dashed #ff6600;background:#fff8e6;color:#7a4a00;
+  font-size:13px;padding:8px 12px;margin:10px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+}
+body.crt .mode-banner{background:#1a1a1e;color:#ffaa00;border-color:#ffaa00}
+.mode-banner a{font-size:13px}
+body.crt .mode-banner a{color:#ffaa00}
+
+.editor-note{
+  border:1px solid var(--box-border);background:var(--box-bg);
+  font-size:14px;padding:10px 14px;margin:12px 0;
+}
+.editor-note b{background:var(--hl);color:var(--text);padding:0 6px;font-family:var(--mono)}
+body.crt .editor-note b{background:#00ff40;color:#0a0a0c}
+
+.results{list-style:none;margin-top:6px}
+.result-item{padding:14px 0 16px;border-bottom:1px dotted var(--box-border)}
+.result-item .rt{font-size:19px;line-height:1.4}
+.result-item .ru{font-size:13px;color:var(--url-green);font-family:var(--mono);word-break:break-all;margin:2px 0}
+.result-item .ru a{font-size:13px;margin-left:10px;white-space:nowrap}
+.result-item .rs{font-size:16px;margin-top:2px}
+.result-item .ra{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:var(--text-2);font-family:var(--mono);flex-wrap:wrap}
+.pr-frame{
+  width:110px;height:10px;border:1px solid var(--box-border);background:var(--page-bg);
+  position:relative;overflow:hidden;
+}
+.pr-fill{height:100%;background:linear-gradient(180deg,#4ade80,var(--pr-bar) 55%,#007a33)}
+body.crt .pr-fill{background:linear-gradient(180deg,#baffd0,#00ff40 55%,#00802a)}
+.pr-num{color:var(--url-green);font-weight:bold}
+.tag-local{border:1px solid #ff6600;color:#ff6600;font-size:11px;padding:0 4px;margin-left:6px}
+body.crt .tag-local{border-color:#ffaa00;color:#ffaa00}
+
+.pager{margin:22px 0;text-align:center;font-size:14px}
+.pager a,.pager b{display:inline-block;min-width:30px;padding:2px 8px;margin:0 2px;border:1px solid var(--btn-border);background:var(--btn-bg);text-decoration:none}
+.pager b{background:var(--hl);border-color:var(--box-border);color:var(--text)}
+.pager a:hover{background:var(--hl)}
+body.crt .pager b,body.crt .pager a:hover{background:#00ff40;color:#0a0a0c}
+.pager .cur{background:var(--accent);color:#fff;border-color:var(--accent)}
+body.crt .pager .cur{background:#00ff40;color:#0a0a0c;border-color:#00ff40}
+
+/* ---------- 老式检索中动画 ---------- */
+.searching{padding:60px 0;text-align:center;font-family:var(--mono);font-size:15px;color:var(--text-2)}
+.searching .spin{display:inline-block;animation:spin 1s steps(4) infinite;font-size:28px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.searching .msg{margin-top:12px;min-height:1.5em}
+
+.error-box{
+  border:2px solid #cc0000;background:#fff0f0;color:#7a0000;
+  padding:16px;margin:20px 0;font-size:14px;
+}
+body.crt .error-box{background:#1a0a0a;border-color:#ff0040;color:#ff8080}
+.error-box h3{font-size:16px;margin-bottom:6px}
+
+/* ---------- 弹窗(老式 Windows 风) ---------- */
+.modal-mask{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;
+  display:flex;align-items:center;justify-content:center;padding:16px;
+}
+.modal{
+  width:min(480px,100%);background:var(--page-bg);border:2px solid var(--box-border);
+  box-shadow:6px 6px 0 rgba(0,0,0,.35);
+}
+.modal .m-head{
+  background:var(--accent);color:#fff;font-weight:bold;font-size:14px;
+  display:flex;justify-content:space-between;align-items:center;padding:5px 10px;
+}
+body.crt .modal .m-head{background:#1a1a1e;color:#00ff40;border-bottom:1px solid #00ff40}
+.modal .m-body{padding:16px;font-size:14px;max-height:60dvh;overflow:auto}
+.modal .m-foot{padding:0 16px 14px;display:flex;gap:10px;justify-content:flex-end}
+.m-close{background:#fff;color:#000;border:1px solid #fff;width:22px;height:20px;line-height:1;font-weight:bold;font-size:12px}
+body.crt .m-close{background:#0a0a0c;color:#00ff40;border-color:#00ff40}
+.field{margin:10px 0}
+.field label{display:block;font-size:13px;margin-bottom:4px;font-family:var(--mono)}
+.field input,.field textarea{
+  width:100%;padding:6px 8px;border:1px solid var(--box-border);background:var(--page-bg);color:var(--text);
+}
+.status-line{font-size:12px;font-family:var(--mono);color:var(--text-2);margin-top:8px;min-height:1.5em}
+
+/* ---------- 按钮 ---------- */
+.btn{
+  height:38px;padding:0 22px;font-size:15px;border-radius:4px;
+  background:var(--btn-bg);border:1px solid var(--btn-border);color:var(--text);
+}
+.btn:hover{background:#e8f0ff}
+.btn:active{border-style:inset}
+body.crt .btn:hover{background:#1a1a1e;color:#ffaa00}
+.btn-primary{
+  background:var(--baidu-blue);border:1px solid var(--baidu-blue);color:#fff;font-weight:bold;height:38px;padding:0 22px;font-size:15px;
+}
+.btn-primary:hover{background:#12279b;color:#fff}
+body.crt .btn-primary{background:#00ff40;border-color:#00ff40;color:#0a0a0c}
+body.crt .btn-primary:hover{background:#00cc33;color:#0a0a0c}
+
+/* ---------- 留言本 ---------- */
+.gb-list{max-width:640px;margin:0 auto}
+.gb-entry{border-bottom:1px dashed var(--box-border);padding:8px 0;font-size:14px}
+.gb-entry .who{font-weight:bold;color:var(--link)}
+.gb-entry .when{font-family:var(--mono);font-size:12px;color:var(--text-2);margin-left:8px}
+.gb-entry .txt{margin-top:2px}
+.gb-form{max-width:640px;margin:26px auto 0}
+
+/* ---------- 分类目录页 ---------- */
+.dir-grid{max-width:720px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){.dir-grid{grid-template-columns:1fr}}
+.dir-grid .panel ol{padding-left:22px;font-family:var(--mono)}
+.dir-grid .panel ol li{margin:2px 0}
+.dir-grid .panel ol a{text-decoration:none;font-family:var(--mono);font-size:13px}
+
+/* ---------- 内页通用标题 ---------- */
+.page-title{max-width:720px;margin:34px auto 6px;padding:0 16px}
+.page-title h2{font-size:26px;color:var(--baidu-blue);letter-spacing:2px}
+body.crt .page-title h2{color:#00ff40}
+.page-title .sub{font-family:var(--mono);font-size:12px;color:var(--text-2);margin-top:4px}
+.page-body{max-width:720px;margin:14px auto 40px;padding:0 16px;font-size:15px}
+.page-body p{margin:10px 0}
+.page-body .mono-list{font-family:var(--mono);font-size:13px;line-height:2}
+
+/* ---------- 页脚 ---------- */
+footer{
+  border-top:1px solid var(--nav-border);background:var(--nav-bg);
+  padding:16px;text-align:center;font-size:12px;color:var(--text-2);line-height:2;
+}
+.counter{display:inline-flex;gap:2px;margin:4px 0}
+.counter i{
+  display:inline-block;width:14px;height:20px;line-height:20px;text-align:center;
+  background:var(--text);color:var(--page-bg);font-family:var(--mono);font-size:12px;font-style:normal;border-radius:2px;
+}
+footer a{font-size:12px}
+.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
