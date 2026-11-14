@@ -1,6 +1,6 @@
 /* ============================================================
    深搜 DeepSou · 全站共用脚本
-   store 读写 / HTML 转义 / 访问计数 / 页脚日期 / 主题切换 / 弹窗
+   store 读写 / HTML 转义 / 页脚日期 / 主题切换 / 弹窗
    ============================================================ */
 (function(){
 "use strict";
@@ -14,15 +14,6 @@ const store = {
 
 /* ---------- HTML 转义 ---------- */
 function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-
-/* ---------- 访问计数器(每页页脚共用) ---------- */
-function renderCounter(){
-  const el = document.getElementById("counter");
-  if(!el) return;
-  let visits = store.get("visits", 1024) + 1;
-  store.set("visits", visits);
-  el.innerHTML = String(visits).padStart(6,"0").split("").map(d=>"<i>"+d+"</i>").join("");
-}
 
 /* ---------- 页脚日期(老式格式) ---------- */
 function renderFooterDate(){
@@ -98,7 +89,6 @@ function showSnapshot(item){
 
 /* ---------- 页面初始化 ---------- */
 document.addEventListener("DOMContentLoaded", ()=>{
-  renderCounter();
   renderFooterDate();
   bindTheme();
   bindModal();

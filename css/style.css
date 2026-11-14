@@ -105,9 +105,6 @@ body.crt::after{
   font-size:66px;line-height:1.1;color:var(--baidu-blue);letter-spacing:8px;font-weight:bold;
 }
 body.crt .home-logo h1{text-shadow:-3px 0 #ff0040,3px 0 #0040ff}
-.home-logo .en{
-  font-family:var(--mono);font-size:14px;color:var(--text-2);margin-top:8px;letter-spacing:2px;
-}
 /* 搜索框上方的蓝色 tab 行(网页|新闻|贴吧|知道…) */
 .home-tabs{margin-bottom:8px;font-size:14px}
 .home-tabs a{display:inline-block;margin:0 7px;text-decoration:underline}
@@ -129,10 +126,6 @@ body.crt .home-form .go{background:#00ff40;border-color:#00ff40;color:#0a0a0c}
 /* 搜索框下方的功能链接行(把百度设为首页 / 加入收藏…) */
 .home-links{margin-top:14px;font-size:13px;color:var(--text-2)}
 .home-links a{margin:0 8px;font-size:13px}
-/* 首页底部小提示 */
-.home-tip{margin-top:40px;font-size:13px;color:var(--text-2)}
-.home-tip .hot{color:#ff0000;font-weight:bold}
-body.crt .home-tip .hot{color:#ff0040}
 
 /* ---------- 面板(通用盒子) ---------- */
 .panel{background:var(--box-bg);border:1px solid var(--box-border);padding:10px 14px;font-size:13px}
@@ -271,11 +264,6 @@ body.crt .page-title h2{color:#00ff40}
 footer{
   border-top:1px solid var(--nav-border);background:var(--nav-bg);
   padding:16px;text-align:center;font-size:12px;color:var(--text-2);line-height:2;
-}
-.counter{display:inline-flex;gap:2px;margin:4px 0}
-.counter i{
-  display:inline-block;width:14px;height:20px;line-height:20px;text-align:center;
-  background:var(--text);color:var(--page-bg);font-family:var(--mono);font-size:12px;font-style:normal;border-radius:2px;
 }
 footer a{font-size:12px}
 .shake{animation:shake .4s}
