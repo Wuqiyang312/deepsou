@@ -1,6 +1,6 @@
 /* ============================================================
-   深搜 DeepSou · 结果页脚本
-   从 URL 读取 q/tab/lucky → 调 DeepSeek 搜索 API 或本地演示 →
+   深度搜索 DeepSou · 结果页脚本
+   从 URL 读取 q/tab/lucky → 经本站后端 /api/search 检索(或本地演示)→
    按权威值排序渲染 + 分页 + 快照;顶部表单可换词重搜
    ============================================================ */
 (function(){
@@ -31,44 +31,27 @@ function writeUrl(){
 const SEARCH_MSGS_API = ["正在连接检索服务器…","正在查询索引库…","DeepSeek 正在翻阅网页…","正在按权威值排序…","即将为您呈现结果…"];
 const SEARCH_MSGS_LOCAL = ["正在查询本地索引库…","正在翻阅资料…","正在按权威值排序…","即将为您呈现结果…"];
 
-/* ---------- DeepSeek 网页搜索 API ---------- */
+/* ---------- 本站后端检索代理 ---------- */
 async function callSearchAPI(q){
-  const cfg = store.get("api", {key:"", base:"https://api.deepseek.com"});
   const t0 = performance.now();
-  const res = await fetch(cfg.base.replace(/\/+$/,"")+"/v1/tools/search",{
+  const res = await fetch("/api/search",{
     method:"POST",
-    headers:{"Content-Type":"application/json", Authorization:"Bearer "+cfg.key},
-    body:JSON.stringify({query:q, count:12, need_content:false})
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({query:q, count:12})
   });
-  if(!res.ok){
-    let msg="HTTP "+res.status;
-    try{ const j=await res.json(); if(j.error&&j.error.message) msg=j.error.message; }catch(_){}
-    throw new Error("搜索接口返回错误:"+msg);
+  const data = await res.json().catch(()=>({}));
+  if(res.status===401 || (data && data.code==="NOT_CONFIGURED")){
+    /* 服务器未配置 Key:交给本地演示流程 */
+    const err = new Error("NOT_CONFIGURED"); err.notConfigured = true;
+    throw err;
   }
-  const data = await res.json();
-  if(!Array.isArray(data.results)) throw new Error("搜索接口返回格式异常");
-  return {
-    took:(performance.now()-t0)/1000,
-    results:data.results.map(r=>{
-      const raw = (typeof r.authority==="number")? r.authority : -1;
-      /* 接口权威性 0~4(-1 未知)折算为 0~10;未知时用 rerank_score(0~3)折算 */
-      const score10 = raw>=0 ? raw/4*10 : (r.rerank_score||0)/3*10;
-      let dateStr="";
-      if(r.date){ const m=String(r.date).slice(0,10); dateStr=/^\d{4}-\d{2}-\d{2}/.test(m)? m : ""; }
-      return {
-        title: String(r.title||"未命名网页"),
-        url: String(r.url||"#"),
-        summary: String(r.snippet||r.summary||""),
-        site: r.site_name? String(r.site_name) : "",
-        date: dateStr,
-        score: score10,
-        raw: raw
-      };
-    }).sort((a,b)=> b.score-a.score)
-  };
+  if(!res.ok || !data.ok || !Array.isArray(data.results)){
+    throw new Error(data.error ? ("检索接口返回错误:"+data.error) : ("HTTP "+res.status));
+  }
+  return { took:(performance.now()-t0)/1000, results:data.results };
 }
 
-/* ---------- 本地演示数据(无 Key 时使用) ---------- */
+/* ---------- 本地演示数据(服务器未配置 Key 时使用) ---------- */
 function localResults(q){
   const sites=[
     {host:"zh.wikipedia.org", path:"/wiki/", tag:"百科"},
@@ -101,19 +84,16 @@ async function doSearch(q, page){
   state.page = page || state.page;
   if(page!==undefined && state.results.length){ render(); window.scrollTo(0,0); return; }
 
-  const cfg = store.get("api", {key:"", base:"https://api.deepseek.com"});
-  const offline = !cfg.key;
-  state.offline = offline;
-
+  let offline = state.offline;
   $("errorBox").classList.add("hidden");
   $("resultList").innerHTML=""; $("pager").innerHTML="";
   $("editorNote").classList.remove("hidden");
   if(offline){
     $("modeBanner").classList.remove("hidden");
-    $("editorNote").innerHTML=`<b>站长的话</b>　离线模式:未配置 API Key,以下结果由本地生成,权威值为示例打分,排序规则为权威值从高到低。`;
+    $("editorNote").innerHTML=`<b>站长的话</b>　离线模式:服务器未配置 API Key,以下结果由本地生成,权威值为示例打分,排序规则为权威值从高到低。`;
   }else{
     $("modeBanner").classList.add("hidden");
-    $("editorNote").innerHTML=`<b>站长的话</b>　本页结果由 DeepSeek 网页搜索 API 提供,权威值由接口权威性(0–4)折算为 0–10,并按从高到低排序。`;
+    $("editorNote").innerHTML=`<b>站长的话</b>　本页结果由本站后端转发 DeepSeek 网页搜索 API 提供,权威值由接口权威性(0–4)折算为 0–10,并按从高到低排序。`;
   }
   if(state.tab && state.tab!=="网页"){
     $("curTab").classList.remove("hidden");
@@ -122,7 +102,7 @@ async function doSearch(q, page){
     $("curTab").classList.add("hidden");
   }
   $("searching").classList.remove("hidden");
-  $("statsLine").textContent="深搜一下,「"+q+"」";
+  $("statsLine").textContent="深度搜索一下,「"+q+"」";
 
   const msgs = offline? SEARCH_MSGS_LOCAL : SEARCH_MSGS_API;
   let mi=0;
@@ -136,7 +116,16 @@ async function doSearch(q, page){
       await sleep(1400);
       out={took:(performance.now()-t0)/1000, results:localResults(q)};
     }else{
-      out=await callSearchAPI(q);
+      try{
+        out=await callSearchAPI(q);
+      }catch(err){
+        if(err.notConfigured){
+          /* 配置被移除等场景:就地转入离线模式再来一次 */
+          state.offline=true;
+          return doSearch(q, page);
+        }
+        throw err;
+      }
     }
     state.results=out.results;
     state.took=out.took.toFixed(1);
@@ -153,7 +142,7 @@ async function doSearch(q, page){
     $("searching").classList.add("hidden");
     state.lucky=false;
     $("errorBox").classList.remove("hidden");
-    $("errorBox").innerHTML=`<h3>检索失败</h3><p>${esc(err.message||"网络连接超时,请稍后再试。")}</p><p class="mono" style="margin-top:6px;font-size:12px">请检查 API 设置或网络后重试</p>`;
+    $("errorBox").innerHTML=`<h3>检索失败</h3><p>${esc(err.message||"网络连接超时,请稍后再试。")}</p><p class="mono" style="margin-top:6px;font-size:12px">请检查服务器 API 设置或网络后重试</p>`;
     $("statsLine").textContent="";
   }
 }
@@ -163,7 +152,7 @@ function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 function render(){
   const q=state.query, all=state.results;
   $("statsLine").textContent = all.length
-    ? `深搜为您找到「${q}」相关结果约 ${all.length} 条(用时 ${state.took} 秒)· 已按权威值排序`
+    ? `深度搜索为您找到「${q}」相关结果约 ${all.length} 条(用时 ${state.took} 秒)· 已按权威值排序`
     : `很抱歉,没有找到与「${q}」相关的结果`;
   const pages=Math.max(1, Math.ceil(all.length/PAGE_SIZE));
   if(state.page>pages) state.page=pages;
@@ -215,7 +204,7 @@ $("topLucky").addEventListener("click", ()=>{
   doSearch(q);
 });
 
-/* ---------- 入口:从 URL 启动 ---------- */
+/* ---------- 入口:先查后端配置,再决定联网/离线 ---------- */
 document.addEventListener("DOMContentLoaded", ()=>{
   const p = readParams();
   if(!p.q){
@@ -224,6 +213,12 @@ document.addEventListener("DOMContentLoaded", ()=>{
   }
   state.query=p.q; state.tab=p.tab; state.lucky=p.lucky;
   $("topInput").value=p.q;
-  doSearch(p.q);
-})();
+  fetch("/api/config").then(r=>r.json()).then(cfg=>{
+    state.offline = !cfg.configured;
+    doSearch(p.q);
+  }).catch(()=>{
+    state.offline = true;
+    doSearch(p.q);
+  });
+});
 })();
