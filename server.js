@@ -1,9 +1,18 @@
+/* ============================================================
+   深度搜索 DeepSou · 后端服务
+   - 静态文件托管(多文件页面)
+   - /api/search  转发 DeepSeek 网页搜索 API(服务器端持有 Key)
+   - /api/config  查询/保存/清除服务器端配置(Key 永不返回)
+   - /api/test    测试检索接口连通性
+   - /api/health  健康检查(部署探活用)
+   配置存储:config.json(已加入 .gitignore),或用环境变量
+   DEEPSO_KEY / DEEPSO_BASE 预置。
+   ============================================================ */
 "use strict";
 
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
-const crypto = require("node:crypto");
 
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = __dirname;
@@ -158,6 +167,11 @@ const routes = {
     }
   },
 
+  "GET /api/health": async (req, res) => {
+    const cfg = loadConfig();
+    sendJson(res, 200, { ok: true, configured: !!cfg.key, base: cfg.base, time: new Date().toISOString() });
+  },
+
   "POST /api/test": async (req, res) => {
     try {
       await readBody(req); /* 允许空 body */
@@ -221,7 +235,7 @@ const server = http.createServer(async (req, res) => {
 });
 server.listen(PORT, () => {
   const cfg = loadConfig();
-  console.log(`[深度搜索 DeepSou] 服务已启动: http://localhost:${PORT}`);
+  console.log(`[深度搜索 DeepSou] v6.1 服务已启动: http://0.0.0.0:${PORT}`);
   console.log(`[深度搜索 DeepSou] API Key: ${cfg.key ? "已配置(" + maskKey(cfg.key) + ")" : "未配置(当前为离线演示模式)"}`);
   console.log(`[深度搜索 DeepSou] 接口地址: ${cfg.base}`);
 });
