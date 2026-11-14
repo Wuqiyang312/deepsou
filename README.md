@@ -2,25 +2,28 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-A nostalgic, early-internet-style search engine that connects to the **DeepSeek Web Search API** (`POST /v1/tools/search`) — a pure frontend, single-file HTML page, no build step, no backend, no AI chat involved: it simply searches the real web and ranks results by authority.
+A nostalgic, early-internet-style search engine that connects to the **DeepSeek Web Search API** (`POST /v1/tools/search`) — pure static frontend, multi-file plain HTML/CSS/JS, no build step, no backend, no AI chat involved: it simply searches the real web and ranks results by authority. The homepage layout references the classic Baidu portal of 2009.
 
 ```
         ┌──────────────────────────────────────────────┐
-        │  深搜 DeepSou · est. 1998 (revived 2026)      │
-        │  ┌──────────────────────────┐  ┌────────┐    │
-        │  │  what were dinosaurs…    │  │ 搜一下 │    │
-        │  └──────────────────────────┘  └────────┘    │
+        │            深  搜  (DeepSou)                  │
+        │   网页 新闻 贴吧 知道 MP3 图片 视频 地图 百科    │
+        │  ┌──────────────────────────┐ ┌────────┐     │
+        │  │  what were dinosaurs…    │ │ 深搜一下│     │
+        │  └──────────────────────────┘ └────────┘     │
         └──────────────────────────────────────────────┘
 ```
 
 ## Features
 
-- **Retro 90s style** — Times New Roman links, Courier New mono, green/amber CRT night mode with scanlines, visitor counter, guestbook, "Best viewed at 1024×768, Netscape Navigator 4.0".
+- **2009 Baidu-style homepage** — blue serif logotype, a row of blue channel tabs above the search box, wide input + solid blue button, "set as homepage" link row, and a 1024×768 footer.
+- **Multi-page static site** — homepage, results, category directory, guestbook, about and settings are separate pages sharing one stylesheet and one common script.
 - **Real web search** — calls the DeepSeek Search API (`/v1/tools/search`) directly from the browser. No AI summarization, no chat completions: the results are actual web pages.
-- **Authority ranking** — results are sorted by the API's `authority` field (0–4), displayed as a 0–10 score bar (authority × 2.5; falls back to `rerank_score` when authority is unknown). A result scoring ≥ 3/4 is labeled extremely authoritative.
+- **Authority ranking** — results are sorted by the API's `authority` field (0–4), displayed as a 0–10 score bar (authority × 2.5; falls back to `rerank_score` when authority is unknown).
 - **"I'm feeling lucky"** — jumps straight to the top-ranked result.
+- **CRT night mode** — phosphor-green theme with scanlines, persisted across pages.
 - **Offline demo mode** — without an API key, it serves built-in local demo results so the page still works out of the box.
-- **Zero dependencies** — one `index.html`, open it or serve statically and go.
+- **Zero dependencies** — plain HTML/CSS/JS, serve statically and go.
 
 ## Quick Start
 
@@ -30,18 +33,27 @@ python3 -m http.server 8080
 # open http://localhost:8080
 ```
 
-Or just double-click `index.html`.
+## Pages
+
+| Page | File | Purpose |
+| --- | --- | --- |
+| Homepage | `index.html` | Search box + channel tabs |
+| Results | `results.html` | Reads `?q=…&tab=…` from the URL, searches and renders ranked results |
+| Directory | `dir.html` | Yahoo-style category links into searches |
+| Guestbook | `guestbook.html` | Local-only guestbook (localStorage) |
+| About | `about.html` | About, ranking rule, privacy |
+| Settings | `settings.html` | API key + base URL, with a live connection test |
 
 ## Configuration
 
-Click **API 设置** in the top navigation:
+Open **API 设置** (`settings.html`):
 
 | Field | Default | Notes |
 | --- | --- | --- |
 | API Key | — | Your DeepSeek API key (`sk-...`) |
 | Base URL | `https://api.deepseek.com` | API endpoint root |
 
-The key is stored **only in your browser's `localStorage`** and sent only to DeepSeek itself; nothing is uploaded anywhere else. Use **测试连接** to verify the key before saving. With no key configured, DeepSou runs in offline demo mode (results tagged `本地`).
+The key is stored **only in your browser's `localStorage`** and sent only to DeepSeek itself; nothing is uploaded anywhere else. **测试连接** runs a real search to verify the key. With no key configured, DeepSou runs in offline demo mode (results tagged `本地`).
 
 ## How Results Are Ranked
 
@@ -64,6 +76,7 @@ Results are sorted by score, descending. The green bar under each result shows t
 
 - No tracking, no analytics, no server-side logging.
 - Your API key never leaves your browser except in direct requests to DeepSeek.
+- Guestbook, visitor counter and theme preference live only in your own browser.
 
 ## License
 
