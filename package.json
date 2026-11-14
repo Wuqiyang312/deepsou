@@ -1,0 +1,14 @@
+{
+  "name": "deepsou",
+  "version": "1.0.0",
+  "description": "深度搜索 DeepSou —— 复古检索引擎,后端转发 DeepSeek 网页搜索 API",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

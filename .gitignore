@@ -1,0 +1,6 @@
+# 服务器端 API 配置(含密钥,绝不入库)
+config.json
+config.json.tmp
+node_modules/
+npm-debug.log*
+.DS_Store

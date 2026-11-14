@@ -1,59 +1,67 @@
-# DeepSou 深搜
+# DeepSou 深度搜索
 
 **English** | [简体中文](README.zh-CN.md)
 
-A nostalgic, early-internet-style search engine that connects to the **DeepSeek Web Search API** (`POST /v1/tools/search`) — pure static frontend, multi-file plain HTML/CSS/JS, no build step, no backend, no AI chat involved: it simply searches the real web and ranks results by authority. The homepage layout references the classic Baidu portal of 2009.
+A nostalgic, early-internet-style search engine backed by the **DeepSeek Web Search API** (`POST /v1/tools/search`). The browser never touches your API key: a tiny dependency-free Node backend holds the key server-side and proxies every request. No AI chat involved — it simply searches the real web and ranks results by authority.
 
 ```
         ┌──────────────────────────────────────────────┐
-        │            深  搜  (DeepSou)                  │
-        │   网页 新闻 贴吧 知道 MP3 图片 视频 地图 百科    │
-        │  ┌──────────────────────────┐ ┌────────┐     │
-        │  │  what were dinosaurs…    │ │ 深搜一下│     │
-        │  └──────────────────────────┘ └────────┘     │
+        │  深度搜索 DeepSou · est. 1998 (revived 2026)  │
+        │  ┌──────────────────────────┐  ┌────────┐    │
+        │  │  what were dinosaurs…    │  │ 深度搜索 │    │
+        │  └──────────────────────────┘  └────────┘    │
         └──────────────────────────────────────────────┘
 ```
 
 ## Features
 
-- **2009 Baidu-style homepage** — blue serif logotype, a row of blue channel tabs above the search box, wide input + solid blue button, "set as homepage" link row, and a 1024×768 footer.
-- **Multi-page static site** — homepage, results, category directory, guestbook, about and settings are separate pages sharing one stylesheet and one common script.
-- **Real web search** — calls the DeepSeek Search API (`/v1/tools/search`) directly from the browser. No AI summarization, no chat completions: the results are actual web pages.
-- **Authority ranking** — results are sorted by the API's `authority` field (0–4), displayed as a 0–10 score bar (authority × 2.5; falls back to `rerank_score` when authority is unknown).
+- **Retro 2009-Baidu-style homepage** — blue serif logo, tab row above a wide search box, plain square buttons, footer copyright line. Multi-file static frontend (no build step, no framework).
+- **Backend proxy** — all search and test requests go through your own server (`POST /api/search`, `POST /api/test`); the DeepSeek key lives in server-side `config.json` (gitignored) or in `DEEPSO_KEY` / `DEEPSO_BASE` env vars, and is never sent to the browser.
+- **Real web search** — forwards to the DeepSeek Search API (`/v1/tools/search`). No AI summarization, no chat completions: the results are actual web pages.
+- **Authority ranking** — results are sorted by the API's `authority` field (0–4), displayed as a 0–10 score bar (falls back to `rerank_score` when authority is unknown).
 - **"I'm feeling lucky"** — jumps straight to the top-ranked result.
-- **CRT night mode** — phosphor-green theme with scanlines, persisted across pages.
-- **Offline demo mode** — without an API key, it serves built-in local demo results so the page still works out of the box.
-- **Zero dependencies** — plain HTML/CSS/JS, serve statically and go.
+- **Offline demo mode** — without a configured key, the site serves built-in local demo results so it still works out of the box.
+- **Extras** — categorized directory (Yahoo-style), guestbook, CRT night mode, Baidu-style 2009 layout.
 
 ## Quick Start
 
 ```bash
-# any static server works
-python3 -m http.server 8080
-# open http://localhost:8080
+node server.js
+# open http://localhost:3000
 ```
 
-## Pages
+or with Docker:
 
-| Page | File | Purpose |
-| --- | --- | --- |
-| Homepage | `index.html` | Search box + channel tabs |
-| Results | `results.html` | Reads `?q=…&tab=…` from the URL, searches and renders ranked results |
-| Directory | `dir.html` | Yahoo-style category links into searches |
-| Guestbook | `guestbook.html` | Local-only guestbook (localStorage) |
-| About | `about.html` | About, ranking rule, privacy |
-| Settings | `settings.html` | API key + base URL, with a live connection test |
+```bash
+docker build -t deepsou .
+docker run -p 3000:3000 -e DEEPSO_KEY=sk-... deepsou
+```
+
+Then open **API 设置** in the footer links, paste your DeepSeek key, save and test.
 
 ## Configuration
 
-Open **API 设置** (`settings.html`):
+Server-side, one of:
 
-| Field | Default | Notes |
+| Method | How |
+| --- | --- |
+| Web UI | Footer link **API 设置** → save (writes `config.json`) |
+| Env vars | `DEEPSO_KEY`, `DEEPSO_BASE` (override `config.json`) |
+| File | `config.json` next to `server.js`: `{ "key": "sk-...", "base": "https://api.deepseek.com" }` |
+
+`config.json` is **gitignored** — the key never reaches the repository. The browser can only read `{ configured, base, keyMasked }` from `GET /api/config`.
+
+## Backend API
+
+| Endpoint | Method | Description |
 | --- | --- | --- |
-| API Key | — | Your DeepSeek API key (`sk-...`) |
-| Base URL | `https://api.deepseek.com` | API endpoint root |
+| `/api/search` | POST | Body `{ query, count }` → proxied DeepSeek search, normalized + sorted results |
+| `/api/test` | POST | Connectivity check (one real query: "DeepSeek") |
+| `/api/config` | GET | `{ configured, base, keyMasked }` — never exposes the key |
+| `/api/config` | POST | Save `{ key, base }` to `config.json` |
+| `/api/config` | DELETE | Clear the stored key |
 
-The key is stored **only in your browser's `localStorage`** and sent only to DeepSeek itself; nothing is uploaded anywhere else. **测试连接** runs a real search to verify the key. With no key configured, DeepSou runs in offline demo mode (results tagged `本地`).
+Errors: `401` = key not configured; `502` = upstream failure.
 
 ## How Results Are Ranked
 
@@ -65,18 +73,32 @@ score = authority >= 0 ? authority / 4 * 10 : rerank_score / 3 * 10
 
 Results are sorted by score, descending. The green bar under each result shows the score.
 
-## API Reference
+## Upstream API Reference
 
 - Endpoint: `POST {base}/v1/tools/search`
 - Request: `{ "query": "...", "count": 12, "need_content": false }`
 - Response: `results[]` with `title`, `url`, `snippet`, `site_name`, `date`, `authority`, `rerank_score`
 - Docs: https://api-docs.deepseek.com/zh-cn/api/search.md
 
+## Project Layout
+
+```
+server.js        Node backend (static hosting + API proxy, zero deps)
+index.html       Homepage (2009 Baidu style)
+results.html     Search results page
+dir.html         Category directory
+guestbook.html   Guestbook
+settings.html    API settings page
+about.html       About / privacy / tech notes
+css/  js/        Styles and per-page scripts
+Dockerfile       All-in-one image
+config.json      Server-side key file (gitignored)
+```
+
 ## Privacy
 
-- No tracking, no analytics, no server-side logging.
-- Your API key never leaves your browser except in direct requests to DeepSeek.
-- Guestbook, visitor counter and theme preference live only in your own browser.
+- No tracking, no analytics, no request logging.
+- The API key stays on the server; the browser only talks to your own backend.
 
 ## License
 
